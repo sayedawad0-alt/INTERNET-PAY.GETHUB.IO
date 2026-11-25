@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>اشتراك النت الشهري</title>
+<style>
+  :root {
+    --bg: #f4f6f9;
+    --card: #ffffff;
+    --primary: #1e3a8a;
+    --primary-light: #eff6ff;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --paid-bg: #dcfce7;
+    --paid-text: #166534;
+    --partial-bg: #fef3c7;
+    --partial-text: #92400e;
+    --unpaid-bg: #fee2e2;
+    --unpaid-text: #991b1b;
+    --shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+
+  * {
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, Arial, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    padding-bottom: 85px;
+  }
+
+  header {
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    color: #fff;
+    padding: 18px 16px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 2px 10px rgba(30, 58, 138, 0.2);
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+
+  .offline-badge {
+    background: rgba(255,255,255,0.18);
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    background: #4ade80;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .month-bar {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .month-bar::-webkit-scrollbar { display: none; }
+
+  .month-btn {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.25);
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.2s;
+  }
+
+  .month-btn.active {
+    background: #ffffff;
+    color: var(--primary);
+    border-color: #ffffff;
+  }
+
+  .add-month-btn {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    border: 1px dashed rgba(255,255,255,0.5);
+    padding: 7px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 14px;
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    padding: 10px 8px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: var(--shadow);
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .stat-val {
+    font-size: 1.1rem;
+    font-weight: 800;
+  }
+
+  .val-green { color: #16a34a; }
+  .val-red { color: #dc2626; }
+  .val-blue { color: #1e3a8a; }
+
+  .filter-tabs {
+    display: flex;
+    background: #e5e7eb;
+    padding: 4px;
+    border-radius: 10px;
+    margin-bottom: 14px;
+    gap: 4px;
+  }
+
+  .filter-btn {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 8px 4px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  .filter-btn.active {
+    background: var(--card);
+    color: var(--primary);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .apt-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .apt-card {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 14px;
+    box-shadow: var(--shadow);
+    border-right: 5px solid #cbd5e1;
+    transition: transform 0.15s;
+  }
+
+  .apt-card.status-paid { border-right-color: #22c55e; }
+  .apt-card.status-partial { border-right-color: #f59e0b; }
+  .apt-card.status-unpaid { border-right-color: #ef4444; }
+
+  .apt-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .apt-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .due-badge {
+    font-size: 0.78rem;
+    background: var(--primary-light);
+    color: var(--primary);
+    padding: 3px 8px;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+
+  .status-pill {
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  .pill-paid { background: var(--paid-bg); color: var(--paid-text); }
+  .pill-partial { background: var(--partial-bg); color: var(--partial-text); }
+  .pill-unpaid { background: var(--unpaid-bg); color: var(--unpaid-text); }
+
+  .apt-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+
+  .pay-info {
+    font-size: 0.88rem;
+    color: var(--muted);
+  }
+
+  .pay-info strong {
+    color: var(--text);
+    font-size: 0.95rem;
+  }
+
+  .btn-group {
+    display: flex;
+    gap: 6px;
+  }
+
+  .btn {
+    border: none;
+    padding: 7px 12px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .btn-full {
+    background: #16a34a;
+    color: #fff;
+  }
+
+  .btn-edit {
+    background: #f3f4f6;
+    color: var(--text);
+    border: 1px solid #d1d5db;
+  }
+
+  .btn-clear {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  .bottom-tools {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .tool-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 9px 14px;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+  }
+
+  /* Modal */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    z-index: 100;
+  }
+  .modal-backdrop.open { display: flex; }
+
+  .modal {
+    background: #fff;
+    width: 100%;
+    max-width: 380px;
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  }
+
+  .modal h3 {
+    margin: 0 0 12px;
+    font-size: 1.1rem;
+    color: var(--primary);
+  }
+
+  .form-group {
+    margin-bottom: 12px;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 0.85rem;
+    margin-bottom: 5px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .form-group input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    font-size: 1rem;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .modal-actions button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.92rem;
+    cursor: pointer;
+  }
+
+  .btn-save { background: var(--primary); color: #fff; }
+  .btn-cancel { background: #e5e7eb; color: var(--text); }
+
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1f2937;
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 25px;
+    font-size: 0.85rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+    z-index: 200;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <h1>📶 اشتراك النت الشهري</h1>
+    <span class="offline-badge"><span class="dot"></span> يعمل أوفلاين</span>
+  </div>
+  <div class="month-bar" id="monthBar"></div>
+</header>
+
+<div class="container">
+  <div class="summary-grid">
+    <div class="stat-card">
+      <div class="stat-label">المحصّل</div>
+      <div class="stat-val val-green" id="statCollected">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">المتبقي</div>
+      <div class="stat-val val-red" id="statRemaining">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">دفعوا بالكامل</div>
+      <div class="stat-val val-blue" id="statCount">0 / 0</div>
+    </div>
+  </div>
+
+  <div class="filter-tabs">
+    <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">الكل</button>
+    <button class="filter-btn" data-filter="unpaid" onclick="setFilter('unpaid')">لم يدفع / ناقص</button>
+    <button class="filter-btn" data-filter="paid" onclick="setFilter('paid')">دفع بالكامل</button>
+  </div>
+
+  <div class="apt-list" id="aptList"></div>
+
+  <div class="bottom-tools">
+    <button class="tool-btn" onclick="openAddAptModal()">➕ إضافة شقة</button>
+    <button class="tool-btn" onclick="copyWhatsappSummary()">📋 نسخ ملخص واتساب</button>
+    <button class="tool-btn" onclick="resetDefaultData()">🔄 استعادة بيانات الجدول</button>
+  </div>
+</div>
+
+<!-- Edit Payment Modal -->
+<div class="modal-backdrop" id="payModal">
+  <div class="modal">
+    <h3 id="payModalTitle">تعديل الدفع</h3>
+    <div class="form-group">
+      <label id="payModalLabel">المبلغ المدفوع</label>
+      <input type="number" id="payInput" inputmode="decimal" placeholder="0">
+    </div>
+    <div class="form-group">
+      <label>قيمة الاشتراك الشهري للشقة</label>
+      <input type="number" id="dueInput" inputmode="decimal" placeholder="100">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-save" onclick="savePayment()">حفظ</button>
+      <button class="btn-cancel" onclick="closeModal('payModal')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Month Modal -->
+<div class="modal-backdrop" id="monthModal">
+  <div class="modal">
+    <h3>إضافة شهر جديد</h3>
+    <div class="form-group">
+      <label>اسم الشهر (مثال: ديسمبر)</label>
+      <input type="text" id="newMonthName" placeholder="ديسمبر">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-save" onclick="addMonth()">إضافة</button>
+      <button class="btn-cancel" onclick="closeModal('monthModal')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Apartment Modal -->
+<div class="modal-backdrop" id="aptModal">
+  <div class="modal">
+    <h3>إضافة شقة جديدة</h3>
+    <div class="form-group">
+      <label>اسم الشقة (مثال: شقة 2)</label>
+      <input type="text" id="newAptName" placeholder="شقة 2">
+    </div>
+    <div class="form-group">
+      <label>المبلغ الشهري المطلوب</label>
+      <input type="number" id="newAptDue" inputmode="decimal" value="100">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-save" onclick="addApartment()">إضافة</button>
+      <button class="btn-cancel" onclick="closeModal('aptModal')">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'internet_sub_tracker_v1';
+
+const INITIAL_DATA = {
+  months: ['نوفمبر', 'اكتوبر'],
+  currentMonth: 'نوفمبر',
+  apartments: [
+    { id: 'apt1', name: 'شقة ١', due: 100, payments: { 'نوفمبر': 0, 'اكتوبر': 0 } },
+    { id: 'apt5', name: 'شقة ٥', due: 80,  payments: { 'نوفمبر': 10, 'اكتوبر': 0 } },
+    { id: 'apt6', name: 'شقة ٦', due: 100, payments: { 'نوفمبر': 0, 'اكتوبر': 0 } },
+    { id: 'apt7', name: 'شقة ٧', due: 100, payments: { 'نوفمبر': 100, 'اكتوبر': 0 } },
+    { id: 'apt8', name: 'شقة ٨', due: 80,  payments: { 'نوفمبر': 0, 'اكتوبر': 0 } },
+    { id: 'apt10', name: 'شقة ١٠', due: 100, payments: { 'نوفمبر': 100, 'اكتوبر': 70 } },
+    { id: 'apt11', name: 'شقة ١١', due: 75,  payments: { 'نوفمبر': 100, 'اكتوبر': 0 } },
+    { id: 'apt12', name: 'شقة ١٢', due: 100, payments: { 'نوفمبر': 100, 'اكتوبر': 0 } }
+  ]
+};
+
+let state = loadState();
+let currentFilter = 'all';
+let editingAptId = null;
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch (e) {}
+  return JSON.parse(JSON.stringify(INITIAL_DATA));
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (e) {}
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function renderMonths() {
+  const bar = document.getElementById('monthBar');
+  bar.innerHTML = '';
+  state.months.forEach(m => {
+    const btn = document.createElement('button');
+    btn.className = 'month-btn' + (state.currentMonth === m ? ' active' : '');
+    btn.textContent = m;
+    btn.onclick = () => {
+      state.currentMonth = m;
+      saveState();
+      render();
+    };
+    bar.appendChild(btn);
+  });
+
+  const addBtn = document.createElement('button');
+  addBtn.className = 'add-month-btn';
+  addBtn.textContent = '+ شهر جديد';
+  addBtn.onclick = () => {
+    document.getElementById('newMonthName').value = '';
+    document.getElementById('monthModal').classList.add('open');
+  };
+  bar.appendChild(addBtn);
+}
+
+function getStatus(paid, due) {
+  if (paid >= due && due > 0) return 'paid';
+  if (paid > 0 && paid < due) return 'partial';
+  return 'unpaid';
+}
+
+function render() {
+  renderMonths();
+  const month = state.currentMonth;
+  const list = document.getElementById('aptList');
+  list.innerHTML = '';
+
+  let totalDue = 0;
+  let totalCollected = 0;
+  let fullPaidCount = 0;
+
+  state.apartments.forEach(apt => {
+    const paid = Number(apt.payments[month] || 0);
+    const due = Number(apt.due || 0);
+    totalDue += due;
+    totalCollected += paid;
+    const status = getStatus(paid, due);
+    if (status === 'paid') fullPaidCount++;
+
+    if (currentFilter === 'paid' && status !== 'paid') return;
+    if (currentFilter === 'unpaid' && status === 'paid') return;
+
+    const remaining = Math.max(0, due - paid);
+    const extra = paid > due ? (paid - due) : 0;
+
+    let pillText = 'لم يدفع (X)';
+    let pillClass = 'pill-unpaid';
+    if (status === 'paid') {
+      pillText = extra > 0 ? `دفع (+${extra} زيادة)` : 'مدفوع بالكامل ✓';
+      pillClass = 'pill-paid';
+    } else if (status === 'partial') {
+      pillText = `دفع جزئي (باقي ${remaining})`;
+      pillClass = 'pill-partial';
+    }
+
+    const card = document.createElement('div');
+    card.className = `apt-card status-${status}`;
+    card.innerHTML = `
+      <div class="apt-top">
+        <div class="apt-title">
+          <span>${apt.name}</span>
+          <span class="due-badge">المطلوب: ${due}</span>
+        </div>
+        <span class="status-pill ${pillClass}">${pillText}</span>
+      </div>
+      <div class="apt-actions">
+        <div class="pay-info">
+          المدفوع: <strong>${paid}</strong>
+        </div>
+        <div class="btn-group">
+          ${status !== 'paid' ? `<button class="btn btn-full" onclick="markFullPaid('${apt.id}')">تم الدفع</button>` : ''}
+          <button class="btn btn-edit" onclick="openPayModal('${apt.id}')">تعديل</button>
+          ${paid > 0 ? `<button class="btn btn-clear" onclick="clearPayment('${apt.id}')">X</button>` : ''}
+        </div>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+
+  const totalRemaining = Math.max(0, totalDue - totalCollected);
+  document.getElementById('statCollected').textContent = totalCollected;
+  document.getElementById('statRemaining').textContent = totalRemaining;
+  document.getElementById('statCount').textContent = `${fullPaidCount} / ${state.apartments.length}`;
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.filter === f);
+  });
+  render();
+}
+
+function markFullPaid(id) {
+  const apt = state.apartments.find(a => a.id === id);
+  if (!apt) return;
+  apt.payments[state.currentMonth] = apt.due;
+  saveState();
+  render();
+  showToast(`تم تسجيل دفع ${apt.name} (${apt.due})`);
+}
+
+function clearPayment(id) {
+  const apt = state.apartments.find(a => a.id === id);
+  if (!apt) return;
+  apt.payments[state.currentMonth] = 0;
+  saveState();
+  render();
+  showToast(`تم إلغاء الدفع لـ ${apt.name}`);
+}
+
+function openPayModal(id) {
+  const apt = state.apartments.find(a => a.id === id);
+  if (!apt) return;
+  editingAptId = id;
+  document.getElementById('payModalTitle').textContent = `${apt.name} - شهر ${state.currentMonth}`;
+  document.getElementById('payInput').value = apt.payments[state.currentMonth] || 0;
+  document.getElementById('dueInput').value = apt.due;
+  document.getElementById('payModal').classList.add('open');
+}
+
+function savePayment() {
+  const apt = state.apartments.find(a => a.id === editingAptId);
+  if (!apt) return;
+  const val = parseFloat(document.getElementById('payInput').value) || 0;
+  const due = parseFloat(document.getElementById('dueInput').value) || 0;
+  apt.payments[state.currentMonth] = val;
+  apt.due = due;
+  saveState();
+  closeModal('payModal');
+  render();
+  showToast('تم حفظ التعديل');
+}
+
+function addMonth() {
+  const name = document.getElementById('newMonthName').value.trim();
+  if (!name) return;
+  if (!state.months.includes(name)) {
+    state.months.unshift(name);
+  }
+  state.currentMonth = name;
+  saveState();
+  closeModal('monthModal');
+  render();
+  showToast(`تمت إضافة شهر ${name}`);
+}
+
+function openAddAptModal() {
+  document.getElementById('newAptName').value = '';
+  document.getElementById('newAptDue').value = '100';
+  document.getElementById('aptModal').classList.add('open');
+}
+
+function addApartment() {
+  const name = document.getElementById('newAptName').value.trim();
+  const due = parseFloat(document.getElementById('newAptDue').value) || 100;
+  if (!name) return;
+  state.apartments.push({
+    id: 'apt_' + Date.now(),
+    name,
+    due,
+    payments: {}
+  });
+  saveState();
+  closeModal('aptModal');
+  render();
+  showToast(`تمت إضافة ${name}`);
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+function copyWhatsappSummary() {
+  const month = state.currentMonth;
+  let lines = [`📶 *اشتراك النت - شهر ${month}*`, ''];
+  state.apartments.forEach(apt => {
+    const paid = Number(apt.payments[month] || 0);
+    const due = Number(apt.due || 0);
+    if (paid >= due) {
+      lines.push(`✅ ${apt.name}: دفع ${paid}`);
+    } else if (paid > 0) {
+      lines.push(`⚠️ ${apt.name}: دفع ${paid} من ${due} (باقي ${due - paid})`);
+    } else {
+      lines.push(`❌ ${apt.name}: لم يدفع (المطلوب ${due})`);
+    }
+  });
+  const text = lines.join('\n');
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => showToast('تم نسخ الملخص للواتساب'));
+  } else {
+    alert(text);
+  }
+}
+
+function resetDefaultData() {
+  if (confirm('هل تريد استعادة البيانات الأصلية من الصورة؟')) {
+    state = JSON.parse(JSON.stringify(INITIAL_DATA));
+    saveState();
+    render();
+    showToast('تمت استعادة البيانات الأصلية');
+  }
+}
+
+render();
+</script>
+</body>
+</html>
